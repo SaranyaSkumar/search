@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<script src="https://code.angularjs.org/1.6.9/angular.js"></script>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+</head>
+<body ng-app="search">
+<div class="maincontainer" ng-controller="searchController">
+    <div class="col">
+<form method="post" action="/search">
+    <div class="card">
+        <div style="padding-left: 50px;color: #fafafa">
+                <h3 style="padding-top: 17px">Jobs posted</h3>
+                <br><br>
+                Search Jobs<span style="color: red">*</span>:
+                <input id="myDropdown" class="dropdown" style="width:85%;
+                height: 60px;" type="text" name="jobs" placeholder="Search jobs here"
+                ng-model="jobs" ng-change="search(jobs)" name="jobsName" ng-model-options="{debounce: 500}"
+                ng-focus="showSearchDiv = true" id="round"
+                ng-blur="closeSearchDiv()"
+                autocomplete="off" required>
+                <md-content>
+                        <div ng-if="data.length > 0" class="poptest-main">
+                            <div class="poptest-lists">
+                                <ul>
+                                    <li class="poptest-list" ng-repeat="med in data track by $index " testid="{{ med['titlr'] }}">
+                                        <div style="padding: 7px;
+                                        margin: 8px;
+                                        font-size: 15px;" class="poptest-main"><a style="color: white;text-decoration: none;" href={{med.applylink}}>{{ med['title'] }}</a></div>
+                                        <div style="opacity: 0.8;padding-left: 18px;">
+                                            <span ng-if="med.companyname">{{med.companyname}}</span> <span ng-if="med.experience">|| {{med.experience}}</span> <span ng-if="med.location">|| {{med.location}}</span>
+                                        </div>
+                                    
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div ng-if="!data.length > 0 && !notFound"  style="padding: 21px;margin: 16px;font-size: 19px;" class="poptest-main">Amazing Opportunities are waiting for you. 
+                        Search and find the careers which is matching your skills</div>
+                        <div ng-if="notFound && data.length < 1" style="padding: 21px;margin: 16px;font-size: 19px;" class="poptest-main">jobs not found</div>
+                    
+                    </md-content>
+        </div>
+    </div>
+</form>
+    </div>
+</div>
+</body>
+</html>
+<style>
+    html {  
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 300;
+            min-height: 100%;
+            background: #fafafa
+            align
+        }
+    .maincontainer{
+        background: #a72ca3c7
+    }
+    .card {
+            background: #a72ca3c7;
+            width: 90%;
+            height: 90%;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .2), 0 1px 1px 0 rgba(0, 0, 0, .14), 0 2px 1px -1px rgba(0, 0, 0, .12);
+            position: fixed;
+            margin: auto;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            border-radius: 3px;
+        }
+        .poptest-main{
+        padding: 0px;
+        margin: 1px 116px;
+        min-width: 40px;
+        overflow: auto;
+        z-index: 1;
+        cursor: pointer;
+        } 
+    
+        poptest-list{
+           padding: 2px 2px 2px 2px;
+        }
+             
+        
+</style>
+<script>
+    angular.module("search", []).controller("searchController", function($scope,$http) {  
+        $scope.search = function (query) {
+        if(query)
+        {
+            $http.get('/data',{params: {query: query}}).then(
+            function successCallback(res){
+                $scope.data= res.data;
+                $scope.notFound= false;
+            });
+        }
+        else {
+            $scope.notFound= true;
+            getPopularjobs();
+        }
+    };
+    var getPopularjobs = function () {
+        $http.get('/data',{params: {}}).then(function successCallback(result){
+            function successCallback(res){
+                $scope.data= res.data;
+            };
+        }, function errorCallback(response) {
+            });
+    };
+    getPopularjobs();
+    } )
+</script>
